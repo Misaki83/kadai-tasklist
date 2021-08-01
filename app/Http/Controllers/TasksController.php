@@ -49,11 +49,11 @@ class TasksController extends Controller
             'content' => 'required',
         ]);
         
-        $task = new Task;
-        $task->status = $request->status;
-        $task->content = $request->content;
-        $task->save();
-
+        $request->user()->tasks()->create([
+            'status'=>$request->status,
+            'content' => $request->content,
+        ]);
+        
         // トップページへリダイレクトさせる
         return redirect('/');
     }
@@ -104,9 +104,10 @@ class TasksController extends Controller
         
         $task = Task::findOrFail($id);
         
-        $task->status=$request->status;
-        $task->content = $request->content;
-        $task->save();
+       $request->user()->tasks()->create([
+            'status'=>$request->status,
+            'content' => $request->content,
+        ]);
 
         // トップページへリダイレクトさせる
         return redirect('/');
@@ -122,7 +123,9 @@ class TasksController extends Controller
     {
         $task = Task::findOrFail($id);
         
-        $task->delete();
+        if (\Auth::id() === $task->user_id) {
+            $task->delete();
+        }
 
         // トップページへリダイレクトさせる
         return redirect('/');
